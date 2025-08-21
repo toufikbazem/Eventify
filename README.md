@@ -1,0 +1,2 @@
+# Eventify
+Event management website
