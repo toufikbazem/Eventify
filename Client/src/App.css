@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@layer utilities {
+  .btn {
+    @apply px-4 py-2 font-semibold rounded-md;
+  }
+  .btn-primary {
+    @apply text-white bg-[#1E88E5] hover:bg-[#1565C0];
+  }
+  .btn-secondary {
+    @apply bg-[#E3F2FD] text-[#1E88E5] border border-[#90CAF9] hover:border-[#1E88E5];
+  }
+
+  .input {
+    @apply border-2 border-[#E0E0E0] focus:border-[#1E88E5] px-4 py-2 rounded-md mt-1 focus:ring-0 focus-visible:ring-0;
+  }
+}
