@@ -14,8 +14,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useDispatch, useSelector } from "react-redux";
 
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+} from "@/redux/user/userSlice";
 
 function Login() {
   const FormSchema = z.object({
@@ -39,7 +45,40 @@ function Login() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {}
+  const { loading, error } = useSelector((state: any) => state.user);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    dispatch(signInStart());
+
+    try {
+      const res = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      const info = await res.json();
+
+      if (!info.success) {
+        dispatch(signInFailure(info.message));
+      }
+
+      if (res.ok) {
+        dispatch(signInSuccess(info));
+        navigate("/");
+      }
+    } catch (error: any) {
+      dispatch(signInFailure(error.message));
+    }
+  };
 
   return (
     <div className="bg-[#F5F7FA]">
@@ -126,7 +165,7 @@ function Login() {
               </div>
 
               <Button className="btn btn-primary w-full" type="submit">
-                Login
+                {loading ? "Loading..." : "Login"}
               </Button>
             </form>
           </Form>
@@ -137,6 +176,15 @@ function Login() {
               Registre here
             </Link>
           </p>
+
+          {error && (
+            <div
+              className="w-full p-4 text-sm text-red-700 bg-red-100 rounded-lg"
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
         </div>
       </div>
     </div>

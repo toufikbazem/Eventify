@@ -3,14 +3,29 @@ import "./App.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Registre from "./pages/Registre";
+import AuthProtection from "./utils/AuthProtection";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Home />} path="/" />
-        <Route element={<Login />} path="/login" />
-        <Route element={<Registre />} path="/registre" />
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/login"
+          element={
+            <AuthProtection>
+              <Login />
+            </AuthProtection>
+          }
+        />
+        <Route
+          path="/registre"
+          element={
+            <AuthProtection>
+              <Registre />
+            </AuthProtection>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

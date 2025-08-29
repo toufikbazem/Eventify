@@ -17,11 +17,25 @@ import {
 import { BsPeople } from "react-icons/bs";
 import { IoBriefcaseOutline } from "react-icons/io5";
 
-import { Link } from "react-router";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 function Registre() {
   const [userType, setUserType] = useState("attendee");
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  let navigate = useNavigate();
+
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   const FormSchema = z
     .object({
@@ -61,7 +75,39 @@ function Registre() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {}
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:3000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: data.fullName,
+          email: data.email,
+          phoneNumber: data.phone,
+          password: data.password,
+          confirmePassword: data.confirmPassword,
+          userType,
+        }),
+      });
+
+      const info = await res.json();
+
+      if (!info.success) {
+        setErrorMessage(info.message);
+        setLoading(false);
+      }
+
+      if (res.ok) {
+        setLoading(false);
+        navigate("/login");
+      }
+    } catch (error: any) {
+      setErrorMessage(error.message);
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-[#F5F7FA]">
@@ -223,7 +269,10 @@ function Registre() {
                   <FormItem className="flex justify-center items-start flex-col">
                     <div className="flex justify-center gap-3 items-center w-full">
                       <FormControl>
-                        <Checkbox />
+                        <Checkbox
+                          onCheckedChange={field.onChange}
+                          checked={field.value}
+                        />
                       </FormControl>
                       <FormLabel className="text-sm text-[#4A5565]">
                         I agree to the terms and conditions
@@ -234,8 +283,12 @@ function Registre() {
                 )}
               />
 
-              <Button className="btn btn-primary w-full" type="submit">
-                Registre
+              <Button
+                className="btn btn-primary w-full"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Loading..." : "Register"}
               </Button>
             </form>
           </Form>
@@ -246,6 +299,15 @@ function Registre() {
               Login here
             </Link>
           </p>
+
+          {errorMessage && (
+            <div
+              className="w-full p-4 text-sm text-red-700 bg-red-100 rounded-lg"
+              role="alert"
+            >
+              {errorMessage}
+            </div>
+          )}
         </div>
       </div>
     </div>
