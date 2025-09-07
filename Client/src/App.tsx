@@ -4,6 +4,8 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Registre from "./pages/Registre";
 import AuthProtection from "./utils/AuthProtection";
+import Dashboard from "./pages/Dashboard";
+import DashEvent from "./components/DashEvent";
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
             </AuthProtection>
           }
         />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashEvent" element={<DashEvent />} />
       </Routes>
     </BrowserRouter>
   );
